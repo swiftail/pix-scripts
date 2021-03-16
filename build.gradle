@@ -1,0 +1,83 @@
+/**
+ * Buildscript configuration
+ */
+buildscript {
+    ext.kotlin_version = '1.3.72'
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT"
+    }
+}
+plugins {
+    id 'org.spongepowered.plugin' version '0.8.1'
+}
+apply plugin: 'kotlin'
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+/**
+ * Configured in settings.gradle
+ */
+group = pluginGroup
+version = pluginVersion
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url "https://oss.jfrog.org/artifactory/libs-release" }
+    maven { url 'https://jitpack.io' }
+}
+
+/**
+ * Kotlin configuration
+ */
+def kotlinRuntime = [
+        'org.jetbrains.kotlin:kotlin-stdlib-jdk8',
+        "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version",
+]
+sourceSets {
+    main.kotlin.srcDirs += 'src/main/java'
+    main.java.srcDirs += 'src/main/java'
+}
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+/**
+ * Minecraft is configured in settings.gradle
+ */
+minecraft {
+    version = project.forgeVersion
+    mappings = project.mcpVersion
+    runDir = "run"
+}
+
+dependencies {
+    /**
+     * Compiling kotlin
+     */
+    compile kotlinRuntime
+    /**
+     * Compiling sponge
+     */
+    compile 'org.spongepowered:spongeapi:7.0.0'
+
+    compile "com.michael-bull.kotlin-result:kotlin-result:1.1.6"
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '3.0.4'
+
+    // All pix dependencies
+    compile fileTree(dir: '../libs/built', include: ['*.jar'])
+}
+
+jar.archiveName = "${pluginId}.jar"
+
+sponge.plugin.id = pluginId
+
+apply from: '../shared.gradle'
